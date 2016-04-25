@@ -8,10 +8,17 @@ include ../pcmac.inc
 stringPrompt   	DB   'Please enter a string $'
 
 charRequest		DB	'What char would you like to find?   $'
-menu			DB	'Please enter the value of the function you would like to use, ', 10, 13,
+menu1			DB	'Please enter the value of the function you would like to use, ', 10, 13,
 					'Function 1: First occurrence of char ', 10, 13,
 					'Function 2: Find the number of occurrences of a certain letter', 10, 13, 
-					'Function 3: The length of the string including spaces', 10, 13, '$'
+					'Function 3: The length of the string including spaces', 10, 13, 
+					'Function 4: Find the length of the string excluding spaces', 10, 13, '$'
+menu2			DB	'Function 5: Replace a character with another character.', 10, 13, 
+					'Function 6: Capitalize the letters in the string.', 10, 13, 
+					'Function 7: Make each letter lower case.', 10, 13, 
+					'Function 8: Toggle the case of every letter.', 10, 13, 
+					'Function 9: Undo the last manipulation to the string', 10, 13,
+					'Function 10: Exit', 10, 13, '$'
 functionInt		DW	?
 input_buffer	DB	51
 input_length	DB	?
@@ -55,7 +62,8 @@ STRINGS	PROC
 	_PutStr stringPrompt
 	_GetStr input_buffer
 	_PutStr datGap
-	_PutStr menu
+	_PutStr menu1
+	_PutStr menu2
 	Call GetDec
 	mov character, al
 	_PutStr datGap
@@ -74,6 +82,8 @@ STRINGS	PROC
 	jz  isFunction4
 	cmp character, 5
 	jz  isFunction5
+	cmp character, 6
+	jz isFunction6
 	
 	
 ;--------------------------------------------------------------------------------
@@ -212,14 +222,22 @@ F5REPLACE:
 	
 F5END:
 	_PutStr end_buffer
+	jmp THEEND
 	
 ; Function 6
 isFunction6:
 	mov bx, 0
+	cmp end_buffer[bx], '$'
+	jz  F6END
 	cmp end_buffer[bx], 7Ah
 	jle CHECKLOWER
 F6LOOP:
 	inc bx
+	cmp end_buffer[bx], '$'
+	jz  F6END
+	cmp end_buffer[bx], 7Ah
+	jle CHECKLOWER
+	jmp F6LOOP
 	
 
 CHECKLOWER:
@@ -230,6 +248,24 @@ CHECKLOWER:
 	jmp F6LOOP
 
 CHECKUPPER:
+	cmp end_buffer[bx], 41h
+	jge F6UPPERFOUND
+	jmp F6LOOP
+	
+F6UPPERFOUND:
+	mov al, end_buffer[bx]
+	add al, 20h
+	mov end_buffer[bx], al
+	jmp F6LOOP
+
+F6LOWERFOUND:
+	mov al, end_buffer[bx]
+	sub al, 20h
+	mov end_buffer[bx], al
+	jmp F6LOOP
+	
+F6END:
+	_PutStr end_buffer
 
 THEEND:
 	
