@@ -18,11 +18,12 @@ menu2			DB	'Function 5: Replace a character with another character.', 10, 13,
 					'Function 7: Make each letter lower case.', 10, 13, 
 					'Function 8: Toggle the case of every letter.', 10, 13, 
 					'Function 9: Undo the last manipulation to the string', 10, 13,
-					'Function 10: Exit', 10, 13, '$'
+					'Function 0: Exit', 10, 13, '$'
 functionInt		DW	?
 input_buffer	DB	51
 input_length	DB	?
 end_buffer		DB	51 DUP('$')
+
 datGap			DB	10, 13, '$'
 character		DB  ?
 ; Function 1 variables
@@ -47,6 +48,10 @@ F5STRING2		DB  'What character would you like instead? $', 10, 13
 F5CharToReplace DB  ?
 F5Replacement   DB  ?
 
+; Function 9 Variables
+backup_buffer   DB  51
+backup_length	DB  ?
+backup_string   DB  51 DUP('$')
 
 
 
@@ -61,6 +66,7 @@ STRINGS	PROC
 	_LdSeg  ds, @data               ; Load the data segment
 	_PutStr stringPrompt
 	_GetStr input_buffer
+DISPLAY:
 	_PutStr datGap
 	_PutStr menu1
 	_PutStr menu2
@@ -72,6 +78,23 @@ STRINGS	PROC
 ; Function Check
 ;--------------------------------------------------------------------------------
 
+	cmp character, 0
+	jz isFunction0
+	cmp character, 9
+	jz isFunction9
+	
+	mov bx, 0
+BACKUP_LOOP:	
+	cmp end_buffer[bx], '$'
+	jz  CONTINUE
+	mov al, end_buffer[bx]
+	mov backup_string[bx], al
+	inc bx
+	jmp BACKUP_LOOP
+	
+	
+
+CONTINUE:
 	cmp character, 1 
 	jz  isFunction1
 	cmp character, 2
@@ -84,6 +107,12 @@ STRINGS	PROC
 	jz  isFunction5
 	cmp character, 6
 	jz isFunction6
+	cmp character, 7
+	jz isFunction7
+	cmp character, 8
+	jz isFunction8
+	
+	
 	
 	
 ;--------------------------------------------------------------------------------
@@ -230,44 +259,121 @@ isFunction6:
 	cmp end_buffer[bx], '$'
 	jz  F6END
 	cmp end_buffer[bx], 7Ah
-	jle CHECKLOWER
+	jle CHECKLOWER6
 F6LOOP:
 	inc bx
 	cmp end_buffer[bx], '$'
 	jz  F6END
 	cmp end_buffer[bx], 7Ah
-	jle CHECKLOWER
+	jle CHECKLOWER6
 	jmp F6LOOP
+CHECKLOWER6:
+	cmp end_buffer[bx], 61h
+	jge F6LOWERFOUND
+	jmp F6LOOP	
+F6LOWERFOUND:
+	mov al, end_buffer[bx]
+	sub al, 20h
+	mov end_buffer[bx], al
+	jmp F6LOOP
+F6END:
+	_PutStr end_buffer
+	jmp THEEND
+
+; Function 7
+isFunction7:
+	mov bx, 0
+	cmp end_buffer[bx], '$'
+	jz  F7END
+	cmp end_buffer[bx], 5Ah
+	jle CHECKUPPER7
+F7LOOP:
+	inc bx
+	cmp end_buffer[bx], '$'
+	jz  F7END
+	cmp end_buffer[bx], 5Ah
+	jle CHECKUPPER7
+	jmp F7LOOP
+CHECKUPPER7:
+	cmp end_buffer[bx], 41h
+	jge F7UPPERFOUND
+	jmp F7LOOP
+F7UPPERFOUND:
+	mov al, end_buffer[bx]
+	add al, 20h
+	mov end_buffer[bx], al
+	jmp F7LOOP
+F7END:
+	_PutStr end_buffer
+	jmp THEEND
+
+
+; Function 8
+isFunction8:
+	mov bx, 0
+	cmp end_buffer[bx], '$'
+	jz  F8END
+	cmp end_buffer[bx], 7Ah
+	jle CHECKLOWER
+F8LOOP:
+	inc bx
+	cmp end_buffer[bx], '$'
+	jz  F8END
+	cmp end_buffer[bx], 7Ah
+	jle CHECKLOWER
+	jmp F8LOOP
 	
 
 CHECKLOWER:
 	cmp end_buffer[bx], 5Ah
 	jle CHECKUPPER
 	cmp end_buffer[bx], 61h
-	jge F6LOWERFOUND
-	jmp F6LOOP
+	jge F8LOWERFOUND
+	jmp F8LOOP
 
 CHECKUPPER:
 	cmp end_buffer[bx], 41h
-	jge F6UPPERFOUND
-	jmp F6LOOP
+	jge F8UPPERFOUND
+	jmp F8LOOP
 	
-F6UPPERFOUND:
+F8UPPERFOUND:
 	mov al, end_buffer[bx]
 	add al, 20h
 	mov end_buffer[bx], al
-	jmp F6LOOP
+	jmp F8LOOP
 
-F6LOWERFOUND:
+F8LOWERFOUND:
 	mov al, end_buffer[bx]
 	sub al, 20h
 	mov end_buffer[bx], al
-	jmp F6LOOP
+	jmp F8LOOP
 	
-F6END:
+F8END:
 	_PutStr end_buffer
+	jmp THEEND
+
+isFunction9:
+	mov bx, 0
+REPLACE_LOOP:
+	cmp backup_string[bx], '$'
+	jz  CONTINUE_REPLACE
+	mov al, backup_string[bx]
+	mov end_buffer[bx], al
+	inc bx
+	jmp REPLACE_LOOP
+CONTINUE_REPLACE:
+	_PutStr end_buffer
+	jmp THEEND
+	
+isFunction0:
+	jmp EXITPROGRAM
 
 THEEND:
+	;_PutStr end_buffer
+	;_PutStr backup_string
+	jmp DISPLAY
+	
+EXITPROGRAM:
 	
 	_Exit
 STRINGS	ENDP

@@ -1,5 +1,5 @@
 [shared-]
-	pmark="C:\STRINGS\program.asm" 90 1
+	pmark="C:\STRINGS\program.asm" 266 1
 	version=3
 [debug-]
 	target="c:\strings\program.exe"
@@ -9,7 +9,7 @@
 	wndstate=0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1
 	wndstate=1 80 5 0 1 0 1 0 0 0 0 0 0 0 -1
 	wndstate=2 34 4 33 1 0 0 0 0 0 0 0 0 0 -1
-	wndstate=3 68 14 0 6 0 1 0 0 0 89 87 0 0 -1
+	wndstate=3 68 14 0 6 0 1 0 0 0 265 258 0 0 -1
 	wndstate=4 67 7 3 8 0 0 0 0 0 0 0 0 0 -1
 	wndstate=5 67 4 0 12 0 0 0 0 0 0 0 0 0 -1
 	wndstate=6 67 4 3 15 0 0 0 0 0 0 0 0 0 -1
